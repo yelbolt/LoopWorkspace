@@ -253,29 +253,35 @@ jobs:
       # Customize Loop: Download and apply patches
       - name: Customize Loop
         run: |
-
-          # LoopWorkspace patches
-          # -applies any patches located in the LoopWorkspace/patches/ directory
-          if $(ls ./patches/* &> /dev/null); then
-          git apply ./patches/* --allow-empty -v --whitespace=fix
-          fi
-
-          # Submodule Loop patches:
-          # Template for customizing submodule Loop (changes Loop app name to "CustomLoop")
-          # Remove the "#" sign from the beginning of the line below to activate:
-          #curl https://github.com/loopnlearn/Loop/commit/d206432b024279ef710df462b20bd464cd9682d4.patch | git apply --directory=Loop -v --whitespace=fix
-
-          # Submodule LoopKit patches:
-          # General template for customizing submodule LoopKit 
-          # Copy url from a GitHub commit or pull request and insert below, and remove the "#" sign from the beginning of the line to activate:
-          #curl url_to_github_commit.patch | git apply --directory=LoopKit -v --whitespace=fix
-
-          # Submodule xxxxx patches:
-
-          # Add patches for customization of additional submodules by following the templates above, 
-          # and make sure to specify the submodule by setting "--directory=(submodule_name)".
-          # Several patches may be added per submodule.
-          # Adding comments (#) may be useful to easily tell the individual patches apart.
+          # The lines below add the customizations listed using the CustomizationSelect script
+          # The "\" is a continuation character 
+          #   the line following a "\" cannot be blank - that causes the Action to never complete
+          /bin/bash -c "$(curl -fsSL \
+          https://raw.githubusercontent.com/loopandlearn/lnl-scripts/main/CustomizationSelect.sh)" \
+          future_carbs_4h \
+          low_carb_limit \
+          no_auth \
+          override_sens \
+          now_line \
+          watch_title \
+          2hlollipop \
+          meal_days \
+          2002 \
+          basal_lock \
+          live_activity
+        
+          # LoopWorkspace commit: Adds xDrip4iOS and GlucoseDirect CGM clients
+          # Note - the added submodules must be cloned before the patch will work
+          echo "Downloading code to support xdrip-client-swift"
+          git clone https://github.com/johandegraeve/xdrip-client-swift-1.git xdrip-client-swift
+          echo "checking out the xdrip-client-swift commit that works with Loop 3.4.0 or later"
+          cd xdrip-client-swift; git checkout e618d67 --quiet; cd ..
+          echo "Downloading code to support GlucoseDirectClient"
+          git clone --branch=dev https://github.com/creepymonster/GlucoseDirectClient.git GlucoseDirectClient
+          echo "checking out the GlucoseDirectClient commit that works with Loop 3.4.0 or later"
+          cd GlucoseDirectClient; git checkout c4223d7 --quiet; cd ..
+          echo "Applying customization to add CGM support to Loop for xDrip4iOS and GlucoseDirect"
+          curl https://github.com/loopandlearn/LoopWorkspace/commit/c97f303d15982a9b192bb90ae7ac3e89a3daf203.patch | git apply
 
       # Patch Fastlane Match to not print tables
       - name: Patch Match Tables
