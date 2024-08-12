@@ -264,7 +264,9 @@ jobs:
           watch_title \
           2hlollipop \
           2002 \
-          basal_lock
+          meal_days \
+          basal_lock \
+          live_activity
         
           # LoopWorkspace commit: Adds xDrip4iOS and GlucoseDirect CGM clients
           # Note - the added submodules must be cloned before the patch will work
